@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="pt_BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+        <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+        <title>Módulo9</title>
+    </head>
+    <body class="container">
+        <style>
+            .acao{width:60px;}
+            .tachado{text-decoration: line-through;}
+        </style>
+        <div class="jumbotron jumbotron-fluid bg-info text-light">
+            <div class="container">
+                <h1 class="display-4 text-center" ><i class="fas fa-tasks"></i></h1>
+                <h1 class="display-4 text-center">Lista de Tarefas</h1>
+                <p class="lead text-center">Exercício do Módulo 9</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Nova tarefa</h5>
+                <form>
+                    <div class="form-row">                        
+                        <div class="col-md-11">
+                            <input class="form-control" id="nomeTarefa"/>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="btn btn-success" id="btnAddTarefa" type="button" > <i class="fas fa-plus"></i></button>
+                            <button class="btn btn-warning" id="btnSalvarEdicao" type="button" style="display: none;">  <i class="fas fa-save"></i></button>
+                        </div>
+                    </div>
+                </form>                
+            </div>
+        </div>
+        <div class="card">
+            <table class="table table-sm" id="listaTarefas">
+                <thead>
+                    <tr>
+                        <th scope="col">Tarefa</th>
+                        <th scope="col acao"></th>                        
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+
+        <script>
+
+            $().ready(function () {
+
+                var operacao = "A"; 
+                var indice_selecionado = -1; 
+                var tbTarefas = localStorage.getItem("tbTarefas");
+                tbTarefas = JSON.parse(tbTarefas); 
+                console.log(tbTarefas);
+                
+                if (tbTarefas == null) 
+                    tbTarefas = [];
+
+
+                
+                
+                var contTarefas = 0;
+
+                var elemLinhaEscolhida = "";
+
+                $("#nomeTarefa").focus();
+
+                var funcaoTachado = function () {
+                    console.log($(this));
+
+                    if ($(this).hasClass("tachado")) {
+                        $(this).find("i").remove();
+                    } else
+                    {
+                        $(this).prepend("<i class=\"fas fa-check-square m-2\">");
+                    }
+
+                    $(this).toggleClass("tachado");
+                    $(this).toggleClass("alert-success");
+
+
+                };
+
+                function Salvar() {
+                    let tarefa = JSON.stringify({
+                        nome: $("#nomeTarefa").val()});
+                    tbTarefas.push(tarefa);
+                    localStorage.setItem("tbTarefas", JSON.stringify(tbTarefas));
+                    return true;
+                }
+
+                $("td.conteudo").click(funcaoTachado);
+
+                $("#btnAddTarefa").click(function () {
+
+                    contTarefas++;
+                    var nomeTarefa = $("#nomeTarefa").val();
+                    Salvar();
+
+                    
+                    $("#listaTarefas tbody").append("<tr id='tarefa_" + contTarefas + "'> <td class='conteudo'>" + nomeTarefa + "</td><td class=\"acao\" ></td></tr>");
+
+
+                    
+                    $("#tarefa_" + contTarefas + " td.acao").append("<div class=\"btn-group\" role=\"group\" ><button class=\"btn btn-warning\" id=\"btnEditar_" + contTarefas + "\" type=\"button\"> <i class=\"fas fa-edit\"></i></button><button class=\"btn btn-danger\" id=\"btnExcluir_" + contTarefas + "\" type=\"button\"> <i class=\"fas fa-trash\"></i></button></div>");
+                    $("#tarefa_" + contTarefas + " td.conteudo").click(funcaoTachado);
+                    
+                    $("#btnExcluir_" + contTarefas).click(function () {
+                        
+                        $(this).parent().parent().parent().remove();
+                    });
+
+                    
+                    $("#btnEditar_" + contTarefas).click(function () {
+
+                    
+                        elemLinhaEscolhida = $(this).parent().parent().parent().attr("id");
+
+                        var textoEscolhido = $(this).parent().parent().parent().find(".conteudo").text();
+
+                        
+                        $("#nomeTarefa").val(textoEscolhido);
+                        $("#nomeTarefa").addClass("alert-warning");
+
+                        $("#btnAddTarefa").hide();
+                        $("#btnSalvarEdicao").show();
+                        $("#nomeTarefa").focus();
+
+                        
+                        $("#listaTarefas").hide();
+
+                        console.log();
+                    });
+
+                    
+                    $("#nomeTarefa").val("");
+                    $("#nomeTarefa").focus();
+                });
+
+                $("#btnSalvarEdicao").click(function () {
+
+                    $("#" + elemLinhaEscolhida + " td.conteudo").text($("#nomeTarefa").val());
+                    $("#btnAddTarefa").show();
+                    $("#btnSalvarEdicao").hide();
+                    $("#nomeTarefa").val("");
+                    $("#nomeTarefa").focus();
+                    $("#nomeTarefa").removeClass("alert-warning");
+
+                    $("#listaTarefas").show();
+                });
+
+
+            });
+        </script>
+    </body>
+</html>
